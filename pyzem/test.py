@@ -14,6 +14,10 @@ dc = dvidio.DvidClient(host = 'localhost', port=8000, uuid='4d3e')
 splitTaskList = dc.read_split_task_keys()
 print splitTaskList
 
+#dc.clear_split_task()
+#dc.clear_split_result()
+#exit()
+
 def process():
     while True:
         splitTaskList = dc.read_split_task_keys()
@@ -22,5 +26,6 @@ def process():
             split.run(task)
         time.sleep(10)
 
-threading.Timer(1, process).start()
+process()
+#threading.Timer(1, process).start()
 

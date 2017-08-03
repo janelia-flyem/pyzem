@@ -5,6 +5,6 @@ test:
 	py.test tests
 
 install:
-	pip install --editable .
+	python setup.py install
 
 .PHONY: init test
