@@ -1,6 +1,6 @@
 import subprocess
 
-from dvid import dvidenv
+from pyzem.dvid import dvidenv
 
 class BodySplit:
     def __init__(self, neutuPath, server = None):

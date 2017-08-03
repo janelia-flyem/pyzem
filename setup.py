@@ -10,6 +10,7 @@ import pyzem
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+#Read multiple files and return their concatenation
 def read(*filenames, **kwargs):
     encoding = kwargs.get('encoding', 'utf-8')
     sep = kwargs.get('sep', '\n')
@@ -44,7 +45,7 @@ setup(
     author_email = 'tingzhao@gmail.com',
     description = 'Python package for flyem utilities',
     long_description = long_description,
-    packages = ['pyzem'],
+    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute'],
     include_package_data = True,
     platforms = 'any',
     test_suite = 'pyzem.test.pyzem',
