@@ -1,6 +1,6 @@
 from __future__ import print_function
 import json
-import urlparse
+import urllib.parse
 
 REF_KEY = '->'
 
@@ -27,7 +27,7 @@ class DvidUrl(object):
         return self._env._port
 
     def join(self, *args):
-        newargs = map(lambda x: str(x).rstrip('/').lstrip('/'), args)
+        newargs = [str(x).rstrip('/').lstrip('/') for x in args]
         #newargs = map(lambda x: '/' + x if (x[0] != '/') else x, newargs)
         #print newargs
         

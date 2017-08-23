@@ -17,7 +17,7 @@ def addActor(cast, actorId, actorSource):
 def addAction(scene, actorId, action):
     if "action" not in scene:
         scene["action"] = list();
-    scene["action"].append(dict({"id": actorId}.items() + action.items()));
+    scene["action"].append(dict(list({"id": actorId}.items()) + list(action.items())));
 
 if __name__ == '__main__':
     movieScript = {};
