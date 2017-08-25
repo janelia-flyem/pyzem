@@ -1,5 +1,5 @@
+from __future__ import print_function
 import json
-import urlparse
 
 REF_KEY = '->'
 
@@ -26,7 +26,7 @@ class DvidUrl(object):
         return self._env._port
 
     def join(self, *args):
-        newargs = map(lambda x: str(x).rstrip('/').lstrip('/'), args)
+        newargs = [str(x).rstrip('/').lstrip('/') for x in args]
         #newargs = map(lambda x: '/' + x if (x[0] != '/') else x, newargs)
         #print newargs
         
@@ -150,16 +150,16 @@ class DvidEnv(object):
 
 if __name__ == "__main__":
     du = DvidUrl(DvidEnv(host = "emdata1.int.janelia.org", port = 8700, uuid = "4320", labelvol = "pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol"))
-    print du.join('test', 'key')
-    print du.get_url('test', 'key')
-    print du.get_split_seed_url('keys')
-    print du.get_node_path()
-    print du.get_node_url()
-    print du.get_keys_path('test')
-    print du.get_keyvalue_path('test', 'key1')
-    print du.get_split_task_path()
-    print du.join(du.get_split_task_path(), 'keys')
-    print du.get_split_task_property_path()
-    print du.get_split_result_property_path('test')
-    print du.get_split_task_property_path('test')
-    print du.get_split_result_property_path()
+    print(du.join('test', 'key'))
+    print(du.get_url('test', 'key'))
+    print(du.get_split_seed_url('keys'))
+    print(du.get_node_path())
+    print(du.get_node_url())
+    print(du.get_keys_path('test'))
+    print(du.get_keyvalue_path('test', 'key1'))
+    print(du.get_split_task_path())
+    print(du.join(du.get_split_task_path(), 'keys'))
+    print(du.get_split_task_property_path())
+    print(du.get_split_result_property_path('test'))
+    print(du.get_split_task_property_path('test'))
+    print(du.get_split_result_property_path())

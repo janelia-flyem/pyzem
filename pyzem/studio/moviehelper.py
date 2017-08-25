@@ -3,12 +3,14 @@ Created on Apr 11, 2016
 
 @author: zhaot
 '''
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 import sys
 
-import MovieScriptWriter as mw
-import movie
+from . import MovieScriptWriter as mw
+from . import movie
 
 class MovieHelper(object):
     '''
@@ -31,15 +33,15 @@ class MovieHelper(object):
             for neuronId in self.neuronNameIdMap[name]:
                 filePath = self.castDir + "/" + neuronId + ".swc"
                 if not os.path.isfile(filePath):
-                    print "WARNING: no file for", name, "(" + neuronId + ")", "-", filePath
+                    print("WARNING: no file for", name, "(" + neuronId + ")", "-", filePath)
                 else:
-                    print name, "added"
+                    print(name, "added")
                     actorList.append(neuronId)
                     self.scriptWriter.addActor(neuronId, filePath)
                     
                 filePath = self.castDir + "/" + neuronId + ".marker"
                 if os.path.isfile(filePath):
-                    print name, "added"
+                    print(name, "added")
                     markerId = neuronId + "_marker"
                     actorList.append(markerId)
                     self.scriptWriter.addActor(markerId, filePath)

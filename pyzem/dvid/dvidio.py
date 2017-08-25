@@ -1,10 +1,12 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 
 from optparse import OptionParser
 import json
 import requests
-import dvidenv
+from . import dvidenv
 import datetime
 
 class DvidClient:
@@ -20,17 +22,17 @@ class DvidClient:
 
     def print_split_result(self):
         url = self._url.join(self._url.get_split_result_url(), 'keyrange', 'task__0/task__z')
-        print url
+        print(url)
         r = requests.get(self._url.join(self._url.get_split_result_url(), 'keyrange', 'task__0/task__z'))
-        print r.text
+        print(r.text)
 
         resultList = json.loads(r.text)
         for result in resultList:
             r = requests.get(self._url.join(self._url.get_split_result_url(), 'key', result))
             resultJson = json.loads(r.text)
-            print resultJson[dvidenv.REF_KEY]
+            print(resultJson[dvidenv.REF_KEY])
             r = requests.get(self._url.join(self._url.get_node_url(), resultJson[dvidenv.REF_KEY]))
-            print r.text
+            print(r.text)
             
     def clear_split_task(self):
         keys = self.read_keys(path = self._url.get_split_task_path())
@@ -39,8 +41,8 @@ class DvidClient:
             try:
                 r = requests.delete(url)
             except Exception as e:
-                print "request failed"
-                print url 
+                print("request failed")
+                print(url) 
 
     def clear_split_result(self):
         keys = self.read_keys(path = self._url.get_split_result_path())
@@ -49,8 +51,8 @@ class DvidClient:
             try:
                 r = requests.delete(url)
             except Exception as e:
-                print "request failed"
-                print url 
+                print("request failed")
+                print(url) 
 
     def read_split_task_keys(self):
         return self.read_keys(path = self._url.get_split_task_path(), range = ['task__0', 'task__z'])
@@ -72,15 +74,15 @@ class DvidClient:
         for task in taskList:
             r = requests.get(self._url.get_url(self._url.get_split_task_path(), 'key', task))
             taskJson = json.loads(r.text)
-            if taskJson.has_key('->'):
+            if '->' in taskJson:
 #                 print taskJson['->']
                 data = self.read_path(taskJson['->'])
 #                 print data
                 taskJson = json.loads(data)
-            print task
-            print '  signal:', taskJson.get('signal')
-            print '  #seeds:', len(taskJson.get('seeds'))
-            print '  Age:', self.read_split_task_age(task)
+            print(task)
+            print('  signal:', taskJson.get('signal'))
+            print('  #seeds:', len(taskJson.get('seeds')))
+            print('  Age:', self.read_split_task_age(task))
     
     def decode_response(self, r):
         return json.loads(r.text)
@@ -90,15 +92,15 @@ class DvidClient:
         return r.text
 
     def read_keys(self, path = None, keyvalue = None, range = None):
-        print keyvalue
+        print(keyvalue)
         if keyvalue:
             path = self._url.get_data_path(keyvalue)
             
-        print path
+        print(path)
         if path:
             if not range:
                 url = self._url.get_url(path, 'keys')
-                print url
+                print(url)
                 return self.decode_response(requests.get(url))
             else:
                 return self.decode_response(requests.get(self._url.join(self._url.get_url(path, 'keyrange', range[0], range[1]))))
@@ -114,7 +116,7 @@ class DvidClient:
             if r.status_code == 200:
                 return r.text
         except:
-            print 'No', key
+            print('No', key)
             pass
         
         return None
@@ -149,7 +151,7 @@ class DvidClient:
         text = self.read_key(keyvalue = dvidenv.get_split_task_property(), key = key)
         try:
             d = json.loads(text)
-            if d.has_key('timestamp'):
+            if 'timestamp' in d:
                 return datetime.datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S.%f')
         except Exception as e:
             pass
@@ -158,7 +160,7 @@ class DvidClient:
 
     def read_split_result_time_stamp(self, key):
         d = json.loads(self.read_key(keyvalue = dvidenv.get_split_result_property(), key = key))
-        if d.has_key('timestamp'):
+        if 'timestamp' in d:
             return datetime.datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S.%f')
         return None
 
@@ -181,7 +183,7 @@ class DvidClient:
     def update_ref_set(self, data = None, key = None, result = None):
         if result is not None:
             keyJson = json.loads(self.read_key(keyvalue = data, key = key))
-            if keyJson and keyJson.has_key(dvidenv.REF_KEY):
+            if keyJson and dvidenv.REF_KEY in keyJson:
                 ref = keyJson[dvidenv.REF_KEY]
                 refKey = ref.split('/')[-1]
                 result.add(refKey)
@@ -216,9 +218,9 @@ if __name__ == '__main__':
     #print r.status
     #print r.msg
     keys = dvid.read_split_task_keys()
-    print keys
+    print(keys)
     for key in keys:
-        print dvid.has_key(key = key, keyvalue = dvidenv.get_split_result())
+        print(dvid.has_key(key = key, keyvalue = dvidenv.get_split_result()))
 #     dvid.print_split_task()/
 #     dvid.print_split_result()
     #dvid.clear_split_task()

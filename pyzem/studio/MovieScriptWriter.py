@@ -14,7 +14,7 @@ class MovieScene:
     def addAction(self, scene, actorId, action):
         if "action" not in self.scene:
             self.scene["action"] = list();
-        self.scene["action"].append(dict({"id": actorId}.items() + action.items()));        
+        self.scene["action"].append(dict(list({"id": actorId}.items()) + list(action.items())));        
         
 class MovieScriptWriter:
     '''

@@ -3,6 +3,7 @@ Created on Jun 12, 2013
 
 @author: zhaot
 '''
+from __future__ import print_function
 
 def pauseScene(duration):
     return {"duration": duration};
@@ -16,7 +17,7 @@ def addActor(cast, actorId, actorSource):
 def addAction(scene, actorId, action):
     if "action" not in scene:
         scene["action"] = list();
-    scene["action"].append(dict({"id": actorId}.items() + action.items()));
+    scene["action"].append(dict(list({"id": actorId}.items()) + list(action.items())));
 
 if __name__ == '__main__':
     movieScript = {};
@@ -25,5 +26,5 @@ if __name__ == '__main__':
     addActor(movieScript["cast"], "test2", "test2.swc");
     scene = newScene(1000);
     addAction(scene, "test", {"color": [1, 0, 0], "move": [0, 0, 1]});
-    print movieScript;
-    print scene;
+    print(movieScript);
+    print(scene);

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import subprocess
 
 from pyzem.dvid import dvidenv
@@ -14,13 +15,13 @@ class BodySplit:
         self._server = server
 
     def run(self, task_key):
-        print self._neutu
+        print(self._neutu)
         du = dvidenv.DvidUrl(self._server)
         task_url = du.get_url(du.get_split_task_path(task_key)) 
-        print task_url
+        print(task_url)
 
         args = [self._neutu, '--command', '--general', '{"command": "split_body"}', task_url, '-o', du.get_node_url()]
-        print args
+        print(args)
         p = subprocess.Popen(args)
         p.wait()
         return p
