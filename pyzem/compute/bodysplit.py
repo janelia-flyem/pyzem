@@ -1,5 +1,6 @@
 from __future__ import print_function
 import subprocess
+import json
 
 from pyzem.dvid import dvidenv, dvidio
 
@@ -69,12 +70,16 @@ class BodySplit:
     def __init__(self, neutuPath = None, env = None):
         self._neutu = neutuPath
         self._url = dvidenv.DvidUrl(env)
+        self._commit = False
         
     def get_env(self):
         return self._url.get_env()
     
     def set_neutu_path(self, path):
         self._neutu = path
+        
+    def set_committing(self, committing):
+        self._commit = committing
 
     def set_server(self, env):
         self._url = dvidenv.DvidUrl(env)
@@ -108,7 +113,9 @@ class BodySplit:
         task_url = du.get_url(du.get_split_task_path(task_key)) 
         print(task_url)
 
-        args = [self._neutu, '--command', '--general', '{"command": "split_body"}', task_url, '-o', du.get_node_url()]
+        commandConfig = {"command": "split_body", "commit": self._commit}
+#         '{"command": "split_body"}'
+        args = [self._neutu, '--command', '--general', json.dumps(commandConfig), task_url, '-o', du.get_node_url()]
         print(args)
         p = subprocess.Popen(args)
         p.wait()
@@ -117,13 +124,15 @@ class BodySplit:
 if __name__ == '__main__':
     bs = BodySplit('/Users/zhaot/Work/neutube/neurolabi/neuTube_Debug_FlyEM_Qt5/neutu_d.app/Contents/MacOS/neutu_d')
     bs.set_server(dvidenv.DvidEnv("zhaot-ws1", 9000, "194d"))
-    print(bs.get_split_task_url())
-    
-    dc = dvidio.DvidClient(env = bs.get_env())
-    print(dc.is_split_result_processed(key = "task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+12767166"))
-    
-    bs.clear_split_task()
-    bs.clear_split_result()
+    bs.set_committing(True)
+    bs.run("task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+12767166")
+#     print(bs.get_split_task_url())
+#     
+#     dc = dvidio.DvidClient(env = bs.get_env())
+#     print(dc.is_split_result_processed(key = "task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+12767166"))
+#     
+#     bs.clear_split_task()
+#     bs.clear_split_result()
 
 
 
