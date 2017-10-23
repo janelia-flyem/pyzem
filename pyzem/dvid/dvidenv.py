@@ -1,5 +1,6 @@
 from __future__ import print_function
 import json
+import urllib
 
 REF_KEY = '->'
 
@@ -32,6 +33,9 @@ class DvidUrl(object):
         
         return "/".join(newargs)
 
+    def get_env(self):
+        return self._env
+    
     def get_url(self, *args):
         return self.join(self.get_server_url(), self.join(*args))
 
@@ -109,7 +113,13 @@ class DvidEnv(object):
         self._labelblk = labelblk
 
     def __str__(self):
-        return self.getNeuTuInput()
+        return self.get_neutu_input()
+    
+    def is_valid(self):
+        return self._host and self._uuid
+    
+    def set_labelvol(self, name):
+        self._labelvol = name
 
     def get_uuid(self):
         return self._uuid
@@ -124,14 +134,48 @@ class DvidEnv(object):
 
         return url
 
-    def get_skeleton_name(self):
-        skeletonName = None
+    def get_neutu_input(self):
+        ninput = "http:" + self._host
+        if self._port:
+            ninput += ":" + str(self._port)
+        
+        ninput += ":" + self._uuid
+        if self._labelvol:
+            ninput += ":" + self._labelvol
+        return ninput
+        
+    def load_server_config(self, config):
+        if "dvid-server" in config:
+            dvidServer = config["dvid-server"]
+            p = urllib.parse.urlsplit(dvidServer)
+            print(p)
+            if p.netloc:
+                self._host = p.netloc
+            else:
+                self._host = p.path
+            self._port = None
+
+            self._uuid = config["uuid"]
+            print(config.get("labelvol"))
+            self.set_labelvol(config.get("labelvol"))
+
+    def get_bodydata_name(self, name):
+        finalName = None
         if self._labelvol:
             if self._labelvol == 'bodies':
-                seletonName = 'skeletons'
+                finalName = name
             else:
-                selectonName = self._label + '_skeletons'
-        return selectionName
+                finalName = self._label + '_' + name
+        return finalName
+    
+    def get_skeleton_name(self):
+        return self.get_bodydata_name("skeletons")
+    
+    def get_thumbnail_name(self):
+        return self.get_bodydata_name("thumbnails")
+    
+    def get_body_annotation_name(self):
+        return self.get_bodydata_name("annotations")
 
     def get_labelvol(self):
         return self._labelvol

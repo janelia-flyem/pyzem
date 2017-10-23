@@ -9,6 +9,13 @@ class SwcNode:
         self._type = ntype
         
     def distance(self, tn):
+        """
+        Returns the distance to another node.
+        
+        Parameters
+        ----------
+        tn : SwcNode
+        """
         if tn:
             dx = self._pos[0] - tn._pos[0]
             dy = self._pos[1] - tn._pos[1]

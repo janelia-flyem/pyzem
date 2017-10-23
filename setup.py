@@ -45,7 +45,7 @@ setup(
     author_email = 'tingzhao@gmail.com',
     description = 'Python package for flyem utilities',
     long_description = long_description,
-    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute'],
+    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute', 'pyzem.swc'],
     include_package_data = True,
     platforms = 'any',
     test_suite = 'pyzem.test.pyzem',
