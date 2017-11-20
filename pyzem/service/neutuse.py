@@ -99,6 +99,8 @@ def process():
         try:
             print("Clearing split task ...")
             bs.clear_split_task()
+            print("Clearing split result ...")
+            bs.clear_split_result()
         except Exception as e:
             print (e)
             
