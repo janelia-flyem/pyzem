@@ -6,6 +6,8 @@ pyzem is a Python library designed for analyzing connectomes produced from micro
 Installation
 ------------
 
+Prerequisite: Python 3
+
 1. Clone the source code from github:
 
 .. code-block:: bash
@@ -16,7 +18,10 @@ Installation
 
 .. code-block:: bash
 
-    $ python setup.py install
+    $ make init
+    $ make install
+
+If your system does not have Python 3, you can install miniconda to set up the environment: https://conda.io/miniconda.html
 
 Examples
 --------
