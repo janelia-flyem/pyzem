@@ -34,3 +34,4 @@ Examples
     tree.load('tests/data/test.swc')
     #Print the overall length of the structure
     print(tree.length())
+
