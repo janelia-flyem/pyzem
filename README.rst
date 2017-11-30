@@ -28,7 +28,7 @@ Examples
 
 .. code-block:: python
 
-    from pyzem import swc
+    from pyzem.swc import swc
     tree = swc.SwcTree()
     #Load a SWC file
     tree.load('tests/data/test.swc')
