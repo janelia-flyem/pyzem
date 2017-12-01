@@ -194,7 +194,7 @@ class SwcTree:
                         pos = data[2:5]
                         radius = data[5]
                         parentId = data[6]
-                        tn = SwcNode(nid=nid, ntype=ntype, radius=radius, pos=pos)
+                        tn = SwcNode(nid=nid, ntype=ntype, radius=radius, center=pos)
                         nodeDict[nid] = (tn, parentId)
             fp.close()
             
@@ -269,7 +269,6 @@ if __name__ == '__main__':
     tn2 = SwcNode(nid=1, radius=1, center=[0,0,2], parent=tn1) 
     print(compute_two_node_area(tn1, tn2, 0.5))
     print(compute_surface_area(tn1, 2.0))
-    exit(1)
     
     tn = Make_Virtual()
     print(tn.get_id())
@@ -298,13 +297,13 @@ if __name__ == '__main__':
 # #     swc.save('/Users/zhaot/Work/neutube/neurolabi/data/test.swc')
     print(swc.length())
     
-    print(swc.compute_surface_area(tn, 2))
+#     print(swc.compute_surface_area(tn, 2))
     
     swc.clear()
     swc._print()
     
     tn = SwcNode(nid = 1, radius = 1, parent = swc.root())
     swc._print()
-    print(swc.compute_surface_area(tn, 2))
+#     print(swc.compute_surface_area(tn, 2))
 
                         
