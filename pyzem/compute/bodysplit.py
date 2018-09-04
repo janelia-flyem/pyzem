@@ -107,7 +107,7 @@ class BodySplit:
         dc = dvidio.DvidClient(env = self._url.get_env())
         return dc.read_split_task_property(key)
 
-    def run(self, task_key):
+    def run(self, task_key, commandFile = None):
         print(self._neutu)
         du = self._url
         task_url = du.get_url(du.get_split_task_path(task_key)) 

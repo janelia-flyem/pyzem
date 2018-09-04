@@ -43,11 +43,11 @@ class DvidUrl(object):
         return self._env.get_server_address()
 
 
-    def get_skeleton_path(self, id):
-        return get_keyvalue_path(self._env.get_skeleton_name, str(id) + '_swc')
+    def get_skeleton_path(self, body_id):
+        return self.get_keyvalue_path(self._env.get_skeleton_name(), str(body_id) + '_swc')
 
-    def get_skeleton_url(self, id):
-        return self.get_url(self.get_skeleton_path(id))
+    def get_skeleton_url(self, body_id):
+        return self.get_url(self.get_skeleton_path(body_id))
 
     def get_node_path(self):
         return '/api/node/' + self._env.get_uuid()
@@ -55,7 +55,7 @@ class DvidUrl(object):
     def get_node_url(self):
         return self.get_url(self.get_node_path())
 
-    def get_node_info_path():
+    def get_node_info_path(self):
         return self.get_repo_path() + '/info'
 
     def get_data_path(self, dataname):
@@ -115,10 +115,25 @@ class DvidEnv(object):
     def __str__(self):
         return self.get_neutu_input()
     
+    def load_source(self, source):
+        tokens = source.split(':')
+        if len(tokens) > 3:
+            if tokens[0] == 'http':
+                self._host = tokens[1]
+                self._port = int(tokens[2])
+                self._uuid = tokens[3]
+            
+            if len(tokens) > 4:
+                self._labelvol = tokens[4]
+                
+        
     def is_valid(self):
         return self._host and self._uuid
     
     def set_labelvol(self, name):
+        self._labelvol = name
+        
+    def set_segmentation(self, name):
         self._labelvol = name
 
     def get_uuid(self):
@@ -154,10 +169,16 @@ class DvidEnv(object):
             else:
                 self._host = p.path
             self._port = None
-
             self._uuid = config["uuid"]
-            print(config.get("labelvol"))
-            self.set_labelvol(config.get("labelvol"))
+            if config.has_key("labelvol"):
+                self.set_labelvol(config.get("labelvol"))
+            if config.has_key("segmentation"):
+                self.set_segmenation(config.get("segmentation"))
+        else:
+            self._host = config.get("address")
+            self._port = config.get("port")
+            self._uuid = config.get("uuid")
+            self._labelvol = config.get("body_label")
 
     def get_bodydata_name(self, name):
         finalName = None
@@ -165,7 +186,7 @@ class DvidEnv(object):
             if self._labelvol == 'bodies':
                 finalName = name
             else:
-                finalName = self._label + '_' + name
+                finalName = self._labelvol + '_' + name
         return finalName
     
     def get_skeleton_name(self):
@@ -189,9 +210,6 @@ class DvidEnv(object):
 
         return None
 
-    def is_valid(self):
-        return self._host and self._uuid
-
 if __name__ == "__main__":
     du = DvidUrl(DvidEnv(host = "emdata1.int.janelia.org", port = 8700, uuid = "4320", labelvol = "pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol"))
     print(du.join('test', 'key'))
@@ -207,3 +225,7 @@ if __name__ == "__main__":
     print(du.get_split_result_property_path('test'))
     print(du.get_split_task_property_path('test'))
     print(du.get_split_result_property_path())
+    
+    denv = DvidEnv()
+    denv.load_source("http:emdata1.int.janelia.org:8500:b6bc:bodies")
+    print(denv)

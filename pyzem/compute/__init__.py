@@ -1,3 +1,3 @@
-from . import bodysplit 
+from . import bodysplit, skeletonizer
 
-__all__ = ['bodysplit']
+__all__ = ['bodysplit', 'skeletonizer', 'command']

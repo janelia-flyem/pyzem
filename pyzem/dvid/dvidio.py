@@ -66,6 +66,22 @@ class DvidClient:
                 print("request failed")
                 print(url) 
 
+    def clear_empty_split_result(self):
+        keys = self.read_split_result_keys()
+        print(keys)
+        for key in keys:
+            url = self._url.get_url(self._url.get_split_result_path(), 'key', key)
+            try:
+                result = self.read_split_result(key)
+                if 'committed' in result:
+                    if not result['committed']:
+                        print(key, result)
+                        r = requests.delete(url)
+            except Exception as e:
+                print(e)
+                print("request failed")
+                print(url)
+                
     def read_split_task_keys(self):
         return self.read_keys(path = self._url.get_split_task_path(), range = ['task__0', 'task__z'])
     
@@ -337,6 +353,8 @@ if __name__ == '__main__':
     print(dvid.has_split_result("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
     dvid.set_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839")
     print(dvid.is_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
+    
+    dvid.clear_empty_split_result()
     #dvid.print_split_result()
     #dvid.clear_split_result()
 #     dvid.write_key('result_split_property', 'test', 'test')
