@@ -17,20 +17,20 @@ def compute_age(d):
         age = dt.seconds / 60
 
     return age
-    
+
 class DvidClient:
     def __init__(self, host = None, port = None, uuid = None, env = None):
         if env:
             self._url = dvidenv.DvidUrl(env)
         else:
             self._url = dvidenv.DvidUrl(dvidenv.DvidEnv(host = host, port = port, uuid = uuid))
-    
+
     def set_dvidenv(self, env):
         self._url = dvidenv.DvidUrl(env)
-        
+
     def has_skeleton(self, id):
         r = requests.get(self._url.get_skeleon_url(id))
-        return s.status_code == 200
+        return r.status_code == 200
 
     def print_split_result(self):
         url = self._url.join(self._url.get_split_result_url(), 'keyrange', 'task__0/task__z')
@@ -45,7 +45,7 @@ class DvidClient:
             print(resultJson[dvidenv.REF_KEY])
             r = requests.get(self._url.join(self._url.get_node_url(), resultJson[dvidenv.REF_KEY]))
             print(r.text)
-            
+
     def clear_split_task(self):
         keys = self.read_keys(path = self._url.get_split_task_path())
         for key in keys:
@@ -54,7 +54,7 @@ class DvidClient:
                 r = requests.delete(url)
             except Exception as e:
                 print("request failed")
-                print(url) 
+                print(url)
 
     def clear_split_result(self):
         keys = self.read_keys(path = self._url.get_split_result_path())
@@ -64,7 +64,7 @@ class DvidClient:
                 r = requests.delete(url)
             except Exception as e:
                 print("request failed")
-                print(url) 
+                print(url)
 
     def clear_empty_split_result(self):
         keys = self.read_split_result_keys()
@@ -81,10 +81,10 @@ class DvidClient:
                 print(e)
                 print("request failed")
                 print(url)
-                
+
     def read_split_task_keys(self):
         return self.read_keys(path = self._url.get_split_task_path(), range = ['task__0', 'task__z'])
-    
+
     def read_split_result_keys(self):
         return self.read_keys(path = self._url.get_split_result_path(), range = ['task__0', 'task__z'])
 
@@ -95,34 +95,34 @@ class DvidClient:
             return taskJson
         except Exception:
             return None
-        
+
     def read_split_result(self, key):
         try:
             r = requests.get(self._url.get_url(self._url.get_split_result_path(), 'key', key))
             resultJson = json.loads(r.text)
             return resultJson
         except Exception:
-            return None    
-        
+            return None
+
     def update_ref_set(self, refSet, key, source):
         taskJson = {}
         if source == 'task':
             taskJson = self.read_split_task(key)
         else:
             taskJson = self.read_split_result(key)
-            
+
         if dvidenv.REF_KEY in taskJson:
             refTask = taskJson[dvidenv.REF_KEY]
             refTaskKey = refTask.split('/')[-1]
             refSet.add(refTaskKey)
             self.update_ref_set(refSet, refTaskKey, source)
-            
+
     def clear_task_garbage(self):
         referredSet = set()
         taskList = self.read_split_task_keys()
         for task in taskList:
-            self.update_ref_set(data = dvidenv.get_split_task(), key = task, result = referredSet, source = "task")
-        
+            self.update_ref_set(refSet = referredSet, key = task, source = "task")
+
         splitKeyList = self.read_keys(keyvalue = dvidenv.get_split_task())
         for key in splitKeyList:
             if key not in referredSet:
@@ -138,7 +138,7 @@ class DvidClient:
         taskList = self.read_split_task_keys()
         for task in taskList:
             self.update_ref_set(data = dvidenv.get_split_task(), key = task, result = referredSet, source = "result")
-        
+
         splitKeyList = self.read_keys(keyvalue = dvidenv.get_split_task())
         for key in splitKeyList:
             if key not in referredSet:
@@ -148,7 +148,7 @@ class DvidClient:
                 elif age > 100:
                     print("removing", key)
                     self.delete_split_result(key)
-        
+
     def print_split_task(self):
         r = requests.get(self._url.get_url(self._url.get_split_task_path(), 'keyrange/task__0/task__z'))
         taskList = json.loads(r.text)
@@ -164,7 +164,7 @@ class DvidClient:
             print('  signal:', taskJson.get('signal'))
             print('  #seeds:', len(taskJson.get('seeds')))
             print('  Age:', self.read_split_task_age(task))
-    
+
     def decode_response(self, r):
         return json.loads(r.text)
 
@@ -176,7 +176,7 @@ class DvidClient:
         print(keyvalue)
         if keyvalue:
             path = self._url.get_data_path(keyvalue)
-            
+
         print(path)
         if path:
             if not range:
@@ -185,10 +185,10 @@ class DvidClient:
                 return self.decode_response(requests.get(url))
             else:
                 return self.decode_response(requests.get(self._url.join(self._url.get_url(path, 'keyrange', range[0], range[1]))))
-            
+
     def has_key(self, path = None, key = None, keyvalue = None):
         return True if self.read_key(path, key, keyvalue) else False
-        
+
     def read_key(self, path = None, key = None, keyvalue = None):
         if keyvalue:
             path = self._url.get_data_path(keyvalue)
@@ -199,26 +199,34 @@ class DvidClient:
         except:
             print('No', key)
             pass
-        
+
         return None
-    
+
     def get_env(self):
         if self._url:
             return self._url.get_env()
         return None
-    
+
+    def read_json_from_path(self, path):
+        try:
+            r = requests.get(self._url.get_url(path))
+            result = self.decode_response(r)
+            return result
+        except:
+            print("Failed to read", self._url.get_url(path))
+
     def delete_skeleton(self, bodyId):
         self.delete_key(self.get_env().get_skeleton_name(), str(bodyId) + "_swc")
 
     def delete_thumbnail(self, bodyId):
         self.delete_key(self.get_env().get_thumbnail_name(), str(bodyId) + "_mraw")
-        
+
     def delete_body_annotation(self, bodyId):
         self.delete_key(self.get_env().get_body_annotation_name(), bodyId)
-        
+
     def delete_split_task(self, key):
         self.delete_key(dvidenv.get_split_task(), key)
-        
+
     def delete_split_result(self, key):
         self.delete_key(dvidenv.get_split_result(), key)
 
@@ -233,33 +241,33 @@ class DvidClient:
         p = json.loads(self.read_key(self._url.get_split_task_property_path(key)))
         p['age'] = compute_age(p)
         return p
-    
+
     def write_key(self, name, key, data):
         requests.post(self._url.get_keyvalue_url(name, key), data)
-    
+
     def is_split_task_processed(self, key):
         v = self.read_key(keyvalue = dvidenv.get_split_task_property(), key = key)
         if v:
             data = json.loads(v)
             return data.get('processed', False)
         return False
-    
+
     def is_split_result_processed(self, key):
         v = self.read_key(keyvalue = dvidenv.get_split_result_property(), key = key)
         data = json.loads(v) if v else None
         processed = data.get('processed', False) if data else False
-            
+
 #         if not processed:
 #             v = self.read_key(keyvalue = dvidenv.get_split_result(), key = key)
 #             data = json.loads(v) if v else None
 #             if data:
 #                 processed = "committed" in data
-                
+
         return processed
-            
+
     def has_split_result(self, key):
         return self.has_key(keyvalue = dvidenv.get_split_result(), key = key)
-    
+
     def mark_split_task(self, key):
         v = self.read_key(keyvalue = dvidenv.get_split_task_property(), key = key)
         data = {}
@@ -267,7 +275,7 @@ class DvidClient:
             data = json.loads(v)
         data['timestamp'] = str(datetime.datetime.now())
         self.write_key(dvidenv.get_split_task_property(), key, json.dumps(data))
-        
+
     def set_split_task_processed(self, key):
         v = self.read_key(keyvalue = dvidenv.get_split_task_property(), key = key)
         data = {}
@@ -291,7 +299,7 @@ class DvidClient:
             data = json.loads(v)
         data['processed'] = True
         self.write_key(dvidenv.get_split_result_property(), key, json.dumps(data))
-        
+
     def read_split_task_time_stamp(self, key):
         text = self.read_key(keyvalue = dvidenv.get_split_task_property(), key = key)
         try:
@@ -326,11 +334,31 @@ class DvidClient:
             dt = datetime.datetime.now() - t
             age = dt.seconds
         return age
-        
-        
-class DvidService:
-    def __init__(self, host = None, port = None, uuid = None):
-        self._reader = DvidReader(host, port, uuid)
+
+    def create_data(self, data_type, name, versioned = True):
+        print("creating data: ", data_type, name)
+        if data_type and name:
+            payload = {"typename": data_type, "dataname": name, "version": "1" if versioned else "0"}
+            print(payload)
+            r = requests.post(self._url.get_url(self._url.get_repo_path(), "instance"), json=payload)
+            print(r.status_code, r.text)
+
+    def read_bookmark(self, user):
+        path = self._url.get_bookmark_path(user = user)
+        result = self.read_json_from_path(path)
+        return result
+
+    def delete_bookmark(self, pos):
+        if len(pos) == 3:
+            try:
+                requests.delete(self._url.get_bookmark_element_url(pos=pos))
+            except Exception:
+                pass
+
+
+# class DvidService:
+#     def __init__(self, host = None, port = None, uuid = None):
+#         self._reader = DvidReader(host, port, uuid)
 
     #def get_split_task_list(self):
 
@@ -338,23 +366,34 @@ class Librarian:
     def __init__(self, host = None, port = None):
         self._host = host
         self._port = port
-    
+
 if __name__ == '__main__':
-#     dvid = DvidClient("emdata1.int.janelia.org", 8500, "b6bc")
-#     dvid.get_env().set_labelvol("bodies")
-#     print(dvid.get_env())
-#     
+    # dvid = DvidClient("emdata1.int.janelia.org", 8500, "b6bc")
+    # dvid.get_env().set_labelvol("bodies")
+    # print(dvid.get_env())
+
+    # dc = DvidClient("emdata4.int.janelia.org", 8900, "36b0")
+    # dc.get_env().set_segmentation("segmentation")
+    # print(dc._url.get_body_size_path(5813059915))
+    # print(dc.read_json_from_path(dc._url.get_sparsevol_size_path(5813059915)))
+
+    dc = DvidClient("127.0.0.1", 1600, "c315")
+    dc.get_env().set_segmentation("segmentation")
+    bookmarks = dc.read_bookmark(user="zhaot")
+    # for bookmark in bookmarks:
+    #     dc.delete_bookmark(pos=bookmark['Pos'])
+#
 #     dvid.delete_skeleton(13054149)
-    dvid = DvidClient('zhaot-ws1', 9000, '194d')
-    dvid.set_split_task_processed("task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+17159670")
-    p = dvid.read_split_task_property("task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+17159670")
-    print(p)
-    
-    print(dvid.has_split_result("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
-    dvid.set_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839")
-    print(dvid.is_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
-    
-    dvid.clear_empty_split_result()
+    # dvid = DvidClient('zhaot-ws1', 9000, '194d')
+    # dvid.set_split_task_processed("task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+17159670")
+    # p = dvid.read_split_task_property("task__http-++emdata1.int.janelia.org-8500+api+node+b6bc+bodies+sparsevol+17159670")
+    # print(p)
+
+    # print(dvid.has_split_result("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
+    # dvid.set_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839")
+    # print(dvid.is_split_result_processed("task__http-++emdata1.int.janelia.org-8700+api+node+f46b+pb26-27-2-trm-eroded32_ffn-20170216-2_celis_cx2-2048_r10_0_seeded_64blksz_vol+sparsevol+87839"))
+
+    # dvid.clear_empty_split_result()
     #dvid.print_split_result()
     #dvid.clear_split_result()
 #     dvid.write_key('result_split_property', 'test', 'test')

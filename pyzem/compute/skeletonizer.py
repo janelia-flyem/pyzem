@@ -1,4 +1,4 @@
-import subprocess;
+import subprocess
 from pyzem.dvid import dvidenv
 from . import command
 
