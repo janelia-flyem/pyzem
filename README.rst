@@ -18,8 +18,7 @@ Prerequisite: Python 3
 
 .. code-block:: bash
 
-    $ make init
-    $ make install
+    $ python setup.py install
 
 If your system does not have Python 3, you can install miniconda to set up the environment: https://conda.io/miniconda.html
 
