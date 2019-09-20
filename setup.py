@@ -40,7 +40,7 @@ setup(
     url = '',
     author = pyzem.__author__,
     tests_require = ['pytest'],
-    install_requires = [],
+    install_requires = ['numpy', 'requests', 'timer', 'networkx', 'bottle', 'anytree'],
     cmdclass = {'test': PyTest},
     author_email = pyzem.__email__,
     description = 'Python package for flyem utilities',
