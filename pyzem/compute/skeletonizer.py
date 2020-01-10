@@ -1,6 +1,10 @@
 import subprocess
 from pyzem.dvid import dvidenv
-from . import command
+
+if __name__ == "__main__":
+    import command
+else:
+    from . import command
 
 class Skeletonizer:
     def __init__(self):
@@ -8,6 +12,7 @@ class Skeletonizer:
         self._executable = "neutu"
         self._force_update = False
         self._body_id = None
+        self._output = None
         self._state = command.State.not_started
 
     def setDvidEnv(self, env):
@@ -19,10 +24,14 @@ class Skeletonizer:
     def setExecutable(self, exe):
         self._executable = exe
         
-    def getCommandArgs(self, bodyId, source, forceUpdate):
+    def getCommandArgs(self, bodyId, source, forceUpdate, output = None):
         args = [self._executable, "--command", "--skeletonize", "--bodyid", str(bodyId), source]
         if forceUpdate:
-                args.append("--force")
+            args.append("--force")
+
+        if output:
+            args.append("-o")
+            args.append(output)
             
         return args
 
@@ -32,17 +41,18 @@ class Skeletonizer:
             self._dvid_env.load_server_config(config["dvid"])
         self._body_id = config.get("bodyid")
         self._force_update = config.get("force_update", False)
+        self._output = config.get("output", None)
         
     def succeeded(self):
         return self._state == command.State.finished
     
     def run(self, bg = False):
         try:
-            self.skeletonize(self._body_id, bg, self._force_update)
+            self.skeletonize(self._body_id, bg, self._force_update, self._output)
         except:
             self._state = command.State.failed
         
-    def skeletonize(self, bodyId, bg = False, forceUpdate = False):
+    def skeletonize(self, bodyId, bg = False, forceUpdate = False, output = None):
         self._state = command.State.not_started
         if bodyId < 1:
             raise Exception("Invalid body ID")
@@ -50,7 +60,7 @@ class Skeletonizer:
         if self._dvid_env and self._dvid_env.is_valid():
             neutuInput = self._dvid_env.get_neutu_input()
             print(neutuInput)
-            args = self.getCommandArgs(bodyId, neutuInput, forceUpdate)
+            args = self.getCommandArgs(bodyId, neutuInput, forceUpdate, output)
             print(' '.join(args))
             p = subprocess.Popen(args)
             self._state = command.State.launched
@@ -66,14 +76,13 @@ class Skeletonizer:
 
 if __name__ == "__main__":
     skeletonizer = Skeletonizer()
-#     dvidEnv = dvidenv.DvidEnv(host = "emdata1.int.janelia.org", port = 8500, uuid = "b6bc", labelvol="bodies")
-#     skeletonizer.setDvidEnv(dvidEnv) 
-    skeletonizer.setExecutable("/Users/zhaot/Work/neutube/neurolabi/neuTube_Debug_FlyEM_Qt5/neutu_d.app/Contents/MacOS/neutu_d")
+
+    skeletonizer.setExecutable("../../tests/tmp/neutu")
 # 
 #     #conn.request("DELETE", dvidUrl.getSkeletonEndPoint(15363212))
 #     skeletonizer.skeletonize(13054149, bg = False, forceUpdate = True)
     import json
-    with open("/Users/zhaot/Work/neutu/neurolabi/data/_flyem/test/skeleton.json") as fp:
+    with open("../../tests/tmp/skeleton.json") as fp:
         config = json.load(fp)
         skeletonizer.configure(config)
         skeletonizer.run(False)

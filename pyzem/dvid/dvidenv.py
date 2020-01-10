@@ -141,6 +141,7 @@ class DvidEnv(object):
         self._uuid = uuid
         self._labelvol = labelvol
         self._labelblk = labelblk
+        self._adminToken = None
 
     def __str__(self):
         return self.get_neutu_input()
@@ -166,6 +167,9 @@ class DvidEnv(object):
     def set_segmentation(self, name):
         self._labelvol = name
 
+    def set_admin_token(self, token):
+        self._adminToken = token
+
     def get_uuid(self):
         return self._uuid
 
@@ -180,13 +184,23 @@ class DvidEnv(object):
         return url
 
     def get_neutu_input(self):
-        ninput = "http:" + self._host
-        if self._port:
-            ninput += ":" + str(self._port)
+        ninput = ''
+        if self._adminToken:
+            ninput = "http://" + self._host
+            if self._port:
+                ninput += ":" + str(self._port)
+            ninput += "?uuid=" + self._uuid
+            if self._labelvol:
+                ninput += "&segmentation=" + self._labelvol
+            ninput += "&admintoken=" + self._adminToken
+        else:
+            ninput = "http:" + self._host
+            if self._port:
+                ninput += ":" + str(self._port)
 
-        ninput += ":" + self._uuid
-        if self._labelvol:
-            ninput += ":" + self._labelvol
+            ninput += ":" + self._uuid
+            if self._labelvol:
+                ninput += ":" + self._labelvol
         return ninput
 
     def load_server_config(self, config):
@@ -204,11 +218,13 @@ class DvidEnv(object):
                 self.set_labelvol(config.get("labelvol"))
             if config.has_key("segmentation"):
                 self.set_segmenation(config.get("segmentation"))
+            self._adminToken = config.get("admin_token")
         else:
             self._host = config.get("address")
             self._port = config.get("port")
             self._uuid = config.get("uuid")
             self._labelvol = config.get("body_label")
+            self._adminToken = config.get("admin_token")
 
     def get_bodydata_name(self, name = None):
         finalName = None
@@ -269,6 +285,9 @@ if __name__ == "__main__":
     print(du.get_bookmark_element_path(pos=[1, 2, 3]))
     print(du.get_bookmark_element_url(pos=[1, 2, 3]))
     print(du.get_data_path('test'))
+
+    du._env.set_admin_token('test')
+    print(du._env.get_neutu_input())
 
     denv = DvidEnv()
     denv.load_source("http:emdata1.int.janelia.org:8500:b6bc:bodies")
