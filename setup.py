@@ -20,9 +20,6 @@ def read(*filenames, **kwargs):
             buf.append(f.read())
     return sep.join(buf)
 
-#long_description = read('docs/README.txt', 'docs/CHANGES.txt')
-long_description = 'todo'
-
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -34,21 +31,29 @@ class PyTest(TestCommand):
         errcode = pytest.main(self.test_args)
         sys.exit(errcode)
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+    requirements = [l for l in requirements if not l.strip().startswith('#')]
+
+with open('README.rst', encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name = 'pyzem',
     version = pyzem.__version__,
     url = '',
     author = pyzem.__author__,
     tests_require = ['pytest'],
-    install_requires = ['numpy', 'requests', 'timer', 'networkx', 'bottle', 'anytree'],
+    install_requires = requirements,
+    # install_requires = ['numpy', 'requests', 'timer', 'networkx', 'bottle', 'anytree'],
     cmdclass = {'test': PyTest},
     author_email = pyzem.__email__,
     description = 'Python package for flyem utilities',
     long_description = long_description,
-    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute', 'pyzem.swc'],
+    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute', 'pyzem.swc', 'pyzem.tests'],
     include_package_data = True,
     platforms = 'any',
-    test_suite = 'pyzem.test.pyzem',
+    # test_suite = 'pyzem.test.pyzem',
     classifiers = [
         'Programming Language :: Python',
         'Development Status :: 0 - Start',

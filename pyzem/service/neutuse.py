@@ -9,7 +9,6 @@ import sys
 import socket
 import jsonschema
 import os
-import timer
 import time
 import threading
 import datetime

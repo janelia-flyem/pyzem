@@ -1,0 +1,40 @@
+
+{% set data = load_setup_py_data() %}
+
+package:
+  name: pyzem
+
+  version: {{ data['version'] }}
+
+source:
+  path: ..
+
+build:
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+  noarch: python
+
+requirements:
+  build:
+    - python >=3.6
+    - setuptools
+  run:
+    - python >=3.6
+    # dependencies are defined in setup.py
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+    {# raw is for ignoring templating with cookiecutter, leaving it for use with conda-build #}
+
+test:
+  imports:
+    - pyzem
+  requires:
+    - pytest
+  commands:
+    - pytest --pyargs pyzem.tests
+
+about:
+  home: https://github.com/janelia-flyem/pyzem
+  summary: A Python library for connectome analysis
+  license: BSD-3-Clause
+  license_file: LICENSE

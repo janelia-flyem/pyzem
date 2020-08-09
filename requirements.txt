@@ -1,6 +1,6 @@
 numpy
 requests
-timer
 networkx
 bottle
 anytree
+neuprint-python
