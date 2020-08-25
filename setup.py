@@ -50,7 +50,7 @@ setup(
     author_email = pyzem.__email__,
     description = 'Python package for flyem utilities',
     long_description = long_description,
-    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute', 'pyzem.swc', 'pyzem.tests'],
+    packages = ['pyzem', 'pyzem.studio', 'pyzem.dvid', 'pyzem.compute', 'pyzem.swc', 'pyzem.tests', 'pyzem.cli'],
     include_package_data = True,
     platforms = 'any',
     # test_suite = 'pyzem.test.pyzem',
@@ -66,6 +66,11 @@ setup(
         ],
     extras_require = {
         'testing': ['pytest'],
+    },
+    entry_points = {
+        'console_scripts': [
+            'process_annotation=pyzem.cli.process_annotation:run'
+        ]
     }
 )
 

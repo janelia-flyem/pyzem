@@ -177,6 +177,10 @@ class SwcTree:
         tn = self.node_from_id(nid)
         if tn:
             return tn.children
+
+    def for_each_subtree(self, callback):
+        for tn in self.regular_root():
+            callback(tn)
             
     def load(self, path):
         self.clear()
@@ -259,6 +263,12 @@ class SwcTree:
                 
         return result
 
+    def for_each_regular_node(self, callback):
+        niter = iterators.PreOrderIter(self._root)
+        for tn in niter:
+            if tn.is_regular():
+                callback(tn)
+
     def radius(self, nid):
         return self.node(nid).radius()
                         
@@ -296,7 +306,7 @@ if __name__ == '__main__':
     print(tn.parent_distance())
 # #     swc.save('/Users/zhaot/Work/neutube/neurolabi/data/test.swc')
     print(swc.length())
-    
+
 #     print(swc.compute_surface_area(tn, 2))
     
     swc.clear()
@@ -304,6 +314,8 @@ if __name__ == '__main__':
     
     tn = SwcNode(nid = 1, radius = 1, parent = swc.root())
     swc._print()
+
+    swc.for_each_regular_node(lambda tn: print(tn))
 #     print(swc.compute_surface_area(tn, 2))
 
                         
